@@ -5,6 +5,11 @@ import Enums.OperationType;
 
 import java.util.List;
 
+/**
+ * Интерфейс репозитория операций
+ */
+
+
 public interface IOperationRepository {
     List<Operation> GetOperations();
     void AddOperation(Integer accountId, OperationType operationType, Double amount);

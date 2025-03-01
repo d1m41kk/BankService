@@ -19,24 +19,24 @@ class AccountServiceTest {
 
     @Test
     void testWithdraw_Success() {
-        Account account = new Account(1, 1234, "TestUser", 25, null);
+        Account account = new Account(1,"TestUser");
         account.Balance = 1000.0;
 
         when(accountRepository.GetAccount(1)).thenReturn(account);
 
-        accountService.Withdraw(1, 1234, 500.0);
+        accountService.Withdraw(1, 500.0);
 
         assertEquals(500.0, account.Balance);
     }
 
     @Test
     void testWithdraw_Fail_NotEnoughBalance() {
-        Account account = new Account(1, 1234, "TestUser", 25, null);
+        Account account = new Account(1,"TestUser");
         account.Balance = 100.0;
 
         when(accountRepository.GetAccount(1)).thenReturn(account);
 
-        accountService.Withdraw(1, 1234, 500.0);
+        accountService.Withdraw(1, 500.0);
 
         assertEquals(100.0, account.Balance);
     }
@@ -44,12 +44,12 @@ class AccountServiceTest {
     @Test
     void testDeposit_Success() {
 
-        Account account = new Account(1, 1234, "TestUser", 25, null);
+        Account account = new Account(1,"TestUser");
         account.Balance = 1000.0;
 
         when(accountRepository.GetAccount(1)).thenReturn(account);
 
-        accountService.Deposit(1, 1234, 500.0);
+        accountService.Deposit(1, 500.0);
 
         assertEquals(1500.0, account.Balance);
     }

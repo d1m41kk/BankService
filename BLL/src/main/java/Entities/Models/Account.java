@@ -2,21 +2,15 @@ package Entities.Models;
 
 import Enums.HairColor;
 /**
- * Класс, представляющий аккаунт пользователя.
+ * Класс, представляющий счет пользователя.
  */
 public class Account {
     public Integer Id;
-    public Double Balance = 0.0;
-    public Integer Pin;
-    public String Name;
-    public Integer Age;
-    public HairColor HairColor;
-
-    public Account(Integer id, Integer pin, String name, Integer age, HairColor hairColor) {
+    public String OwnerLogin;
+    public Double Balance;
+    public Account(Integer id, String ownerLogin) {
         Id = id;
-        Pin = pin;
-        Name = name;
-        Age = age;
-        HairColor = hairColor;
+        OwnerLogin = ownerLogin;
+        Balance = 0.0;
     }
 }

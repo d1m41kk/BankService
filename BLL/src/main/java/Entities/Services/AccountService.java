@@ -32,29 +32,18 @@ public class AccountService {
         accountRepository.DeleteAccount(account.Id);
     }
     /**
-     * Метод для входа в аккаунт
-     */
-    public Account Login(Integer id, Integer pin) {
-        if (accountRepository.GetAccount(id).Id.equals(id) && accountRepository.GetAccount(id).Pin.equals(pin)) {
-            return accountRepository.GetAccount(id);
-        }
-        return null;
-    }
-    /**
      * Метод для снятия наличных
      */
-    public void Withdraw(Integer id, Integer pin, Double amount) {
-        if (Login(id, pin) != null && accountRepository.GetAccount(id).Balance >= amount) {
+    public void Withdraw(Integer id, Double amount) {
+        if (accountRepository.GetAccount(id).Balance >= amount) {
             accountRepository.GetAccount(id).Balance -= amount;
         }
     }
     /**
      * Метод для внесения наличных
      */
-    public void Deposit(Integer id, Integer pin, Double amount) {
-        if (Login(id, pin) != null) {
-            accountRepository.GetAccount(id).Balance += amount;
-        }
+    public void Deposit(Integer id, Double amount) {
+        accountRepository.GetAccount(id).Balance += amount;
     }
     /**
      * Метод для вывода баланса
