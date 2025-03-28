@@ -3,43 +3,30 @@ package Repositories;
 import Abstractions.IUserRepository;
 import Entities.Models.User;
 
-import java.util.ArrayList;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.transaction.Transactional;
 import java.util.List;
 
-/**
- * Класс, представляющий репозиторий пользователей
- */
-
-
 public class UserRepository implements IUserRepository {
-    private final List<User> users = new ArrayList<>();
+    private final EntityManager entityManager;
 
-    /**
-     * Метод выводит список всех пользователей
-     */
+    public UserRepository(EntityManagerFactory entityManagerFactory) {
+        this.entityManager = HibernateUtil.getEntityManagerFactory().createEntityManager();
+    }
 
     public List<User> GetUsers() {
-        return users;
+        return entityManager.createQuery("SELECT u FROM User u", User.class).getResultList();
     }
-
-    /**
-     * Метод выводит пользователя по юзернейму
-     */
 
     public User GetUser(String username) {
-        for (User user : users) {
-            if (user.Login.equals(username)) {
-                return user;
-            }
-        }
-        return null;
+        return entityManager.find(User.class, username);
     }
 
-    /**
-     * Метод добавляет пользователя в список пользователей
-     */
-
+    @Transactional
     public void AddUser(User user) {
-        users.add(user);
+        entityManager.getTransaction().begin();
+        entityManager.persist(user);
+        entityManager.getTransaction().commit();
     }
 }

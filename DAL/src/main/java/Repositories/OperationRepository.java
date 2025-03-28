@@ -4,22 +4,31 @@ import Abstractions.IOperationRepository;
 import Entities.Models.Operation;
 import Enums.OperationType;
 
-import java.util.ArrayList;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.transaction.Transactional;
 import java.util.List;
-/**
- * Класс, представляющий репозиторий операций.
- */
-public class OperationRepository implements IOperationRepository {
-    private final List<Operation> operations = new ArrayList<Operation>();
 
-    public List<Operation> GetOperations() {
-        return operations;
+public class OperationRepository implements IOperationRepository {
+    private final EntityManager entityManager;
+
+    public OperationRepository(EntityManagerFactory entityManagerFactory) {
+        this.entityManager = HibernateUtil.getEntityManagerFactory().createEntityManager();
     }
 
-    /**
-     *Метод для добавления операции в репозиторий
-     */
-    public void AddOperation(Integer accountId, OperationType operationType, Double amount) {
-        operations.add(new Operation(accountId, operationType, amount));
+    public List<Operation> GetOperations() {
+        return entityManager.createQuery("SELECT o FROM Operation o", Operation.class).getResultList();
+    }
+
+    @Transactional
+    public void AddOperation(String accountId, OperationType operationType, Double amount) {
+        Operation operation = new Operation();
+        operation.accountId = accountId;
+        operation.operationType = operationType;
+        operation.amount = amount;
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(operation);
+        entityManager.getTransaction().commit();
     }
 }

@@ -15,7 +15,6 @@ import java.util.Scanner;
 /**
  * Класс для консольного интерфейса
  */
-
 public class ATMConsoleInterface {
     private final AccountService accountService;
     private final OperationService operationService;
@@ -33,28 +32,54 @@ public class ATMConsoleInterface {
 
     public void Run() {
         while (true) {
-            System.out.println("1. Получить информацию пользователя");
-            System.out.println("2. Регистрация счета");
-            System.out.println("3. Регистрация пользователя");
-            System.out.println("4. Посмотреть информацию по счету");
-            System.out.println("5. Выход");
+            System.out.println("1. Вход в аккаунт");
+            System.out.println("2. Регистрация пользователя");
+            System.out.println("3. Выход");
             System.out.print("Выберите действие: ");
 
             int choice = scanner.nextInt();
             scanner.nextLine();
 
             switch (choice) {
-                case 1 -> showUsersInfo();
-                case 2 -> registerAccount();
-                case 3 -> registerUser();
-                case 4 -> accountMenu();
-                case 5 -> {
+                case 1 -> login();
+                case 2 -> registerUser();
+                case 3 -> {
                     System.out.println("Выход из программы.");
                     return;
                 }
                 default -> System.out.println("Некорректный выбор, попробуйте снова.");
             }
         }
+    }
+
+    private void login() {
+        System.out.print("Введите логин: ");
+        String login = scanner.nextLine();
+        currentUser = userService.GetUser(login);
+
+        if (currentUser == null) {
+            System.out.println("Пользователь не найден! Сначала зарегистрируйтесь.");
+            return;
+        }
+
+        System.out.println("Пользователь найден. Вход выполнен успешно.");
+
+        System.out.print("Введите ID аккаунта: ");
+        String accountId = scanner.nextLine();
+        currentAccount = accountService.GetAccount(accountId);
+
+        if (currentAccount == null) {
+            System.out.println("Аккаунт не найден. Создать новый аккаунт? (да/нет)");
+            String response = scanner.nextLine().toLowerCase();
+            if (response.equals("да")) {
+                registerAccount();
+            } else {
+                System.out.println("Вход отменен.");
+            }
+            return;
+        }
+
+        accountMenu();
     }
 
     private void registerAccount() {
@@ -64,26 +89,11 @@ public class ATMConsoleInterface {
         }
 
         System.out.print("Введите ID аккаунта: ");
-        int id = scanner.nextInt();
-        scanner.nextLine();
-        currentAccount = new Account(id, currentUser.Login);
+        String id = scanner.nextLine();
+        currentAccount = new Account(currentUser.login);
         accountService.AddAccount(currentAccount);
         System.out.println("Аккаунт успешно зарегистрирован!");
-    }
-
-    private void showUsersInfo() {
-        System.out.print("Введите логин: ");
-        String login = scanner.nextLine();
-        currentUser = userService.GetUser(login);
-
-        if (currentUser == null) {
-            System.out.println("Пользователь не найден!");
-            return;
-        }
-
-        System.out.println("Имя: " + currentUser.Name);
-        System.out.println("Возраст: " + currentUser.Age);
-        System.out.println("Цвет волос: " + currentUser.HairColor);
+        accountMenu();
     }
 
     private void registerUser() {
@@ -137,25 +147,21 @@ public class ATMConsoleInterface {
     }
 
     private void accountMenu() {
-        if (currentAccount == null) {
-            System.out.println("Сначала зарегистрируйте счет!");
-            return;
-        }
-
         while (true) {
-            System.out.println("1. Просмотр операций");
-            System.out.println("2. Просмотр баланса");
+            System.out.println("1. Просмотр баланса");
+            System.out.println("2. Просмотр операций");
             System.out.println("3. Пополнение счета");
             System.out.println("4. Снятие средств");
-            System.out.println("5. Выйти");
+            System.out.println("5. Выйти из аккаунта");
+            System.out.println("6. Удалить аккаунт"); // Новый пункт меню
             System.out.print("Выберите действие: ");
 
             int choice = scanner.nextInt();
             scanner.nextLine();
 
             switch (choice) {
-                case 1 -> showOperations();
-                case 2 -> showBalance();
+                case 1 -> showBalance();
+                case 2 -> showOperations();
                 case 3 -> depositFunds();
                 case 4 -> withdrawFunds();
                 case 5 -> {
@@ -163,20 +169,39 @@ public class ATMConsoleInterface {
                     currentAccount = null;
                     return;
                 }
+                case 6 -> deleteAccount(); // Новый метод удаления аккаунта
                 default -> System.out.println("Некорректный выбор.");
             }
         }
     }
 
+    private void deleteAccount() {
+        if (currentAccount == null) {
+            System.out.println("Ошибка: Вы не вошли в аккаунт.");
+            return;
+        }
+
+        System.out.print("Вы уверены, что хотите удалить аккаунт? (да/нет): ");
+        String response = scanner.nextLine().toLowerCase();
+
+        if (response.equals("да")) {
+            accountService.DeleteAccount(currentAccount);
+            System.out.println("Аккаунт успешно удален.");
+            currentAccount = null; // Очистка текущего аккаунта
+        } else {
+            System.out.println("Удаление отменено.");
+        }
+    }
+
     private void showOperations() {
-        List<Operation> operations = operationService.GetOperations(currentAccount.Id);
+        List<Operation> operations = operationService.GetOperations(currentAccount.id);
         for (Operation op : operations) {
-            System.out.println(op.AccountId + ": " + op.OperationType + ": " + op.Amount);
+            System.out.println(op.accountId + ": " + op.operationType + ": " + op.amount);
         }
     }
 
     private void showBalance() {
-        Double balance = accountService.GetBalance(currentAccount.Id);
+        Double balance = accountService.GetBalance(currentAccount.id);
         if (balance == null) {
             System.out.println("Ошибка получения баланса!");
         } else {
@@ -187,16 +212,16 @@ public class ATMConsoleInterface {
     private void depositFunds() {
         System.out.print("Введите сумму для пополнения: ");
         double amount = scanner.nextDouble();
-        accountService.Deposit(currentAccount.Id, amount);
-        operationService.AddOperation(currentAccount.Id, OperationType.Deposit, amount);
+        accountService.Deposit(currentAccount.id, amount);
+        operationService.AddOperation(currentAccount.id, OperationType.Deposit, amount);
         System.out.println("Счет пополнен на " + amount);
     }
 
     private void withdrawFunds() {
         System.out.print("Введите сумму для снятия: ");
         double amount = scanner.nextDouble();
-        accountService.Withdraw(currentAccount.Id, amount);
-        operationService.AddOperation(currentAccount.Id, OperationType.Withdrawal, amount);
+        accountService.Withdraw(currentAccount.id, amount);
+        operationService.AddOperation(currentAccount.id, OperationType.Withdrawal, amount);
         System.out.println("Операция завершена.");
     }
 }

@@ -23,7 +23,7 @@ public class UserService {
     public User GetUser(String login) {
         List<User> users = userRepository.GetUsers();
         for (User user : users) {
-            if (user.Login.equals(login)) {
+            if (user.login.equals(login)) {
                 return user;
             }
         }

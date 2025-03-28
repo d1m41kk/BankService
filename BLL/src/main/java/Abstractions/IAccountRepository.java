@@ -7,7 +7,8 @@ import Entities.Models.Account;
  */
 
 public interface IAccountRepository {
-    Account GetAccount(int id);
+    Account GetAccount(String id);
     void AddAccount(Account account);
-    void DeleteAccount(int id);
+    void DeleteAccount(String id);
+    void UpdateBalance(String id, Double amount);
 }

@@ -22,35 +22,35 @@ public class AccountService {
     /**
      * Метод для получения данных аккаунта
      */
-    public Account GetAccount(Account account) {
-        return accountRepository.GetAccount(account.Id);
+    public Account GetAccount(String id) {
+        return accountRepository.GetAccount(id);
     }
     /**
      * Метод для удаления аккаунта
      */
     public void DeleteAccount(Account account) {
-        accountRepository.DeleteAccount(account.Id);
+        accountRepository.DeleteAccount(account.id);
     }
     /**
      * Метод для снятия наличных
      */
-    public void Withdraw(Integer id, Double amount) {
-        if (accountRepository.GetAccount(id).Balance >= amount) {
-            accountRepository.GetAccount(id).Balance -= amount;
+    public void Withdraw(String id, Double amount) {
+        if (accountRepository.GetAccount(id).balance >= amount) {
+            accountRepository.UpdateBalance(id, -amount);
         }
     }
     /**
      * Метод для внесения наличных
      */
-    public void Deposit(Integer id, Double amount) {
-        accountRepository.GetAccount(id).Balance += amount;
+    public void Deposit(String id, Double amount) {
+        accountRepository.UpdateBalance(id, amount);
     }
     /**
      * Метод для вывода баланса
      */
-    public Double GetBalance(Integer id) {
-        if (accountRepository.GetAccount(id) != null) {
-            return accountRepository.GetAccount(id).Balance;
+    public Double GetBalance(String id) {
+        if (accountRepository.GetAccount(String.valueOf(id)) != null) {
+            return accountRepository.GetAccount(id).balance;
         }
         else {
             return null;

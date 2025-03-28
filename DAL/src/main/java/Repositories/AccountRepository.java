@@ -3,38 +3,48 @@ package Repositories;
 import Abstractions.IAccountRepository;
 import Entities.Models.Account;
 
-import java.util.ArrayList;
-import java.util.List;
-/**
- * Класс, представляющий репозиторий пользователей.
- */
-public class AccountRepository implements IAccountRepository {
-    private List<Account> Accounts = new ArrayList<>();
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.transaction.Transactional;
 
-    public AccountRepository() {
-        Accounts = new ArrayList<>();
+public class AccountRepository implements IAccountRepository {
+    private final EntityManager entityManager;
+
+    public AccountRepository(EntityManagerFactory entityManagerFactory) {
+        this.entityManager = HibernateUtil.getEntityManagerFactory().createEntityManager();
     }
-    /**
-     * Метод для получения информации аккаунта
-     */
-    public Account GetAccount(int id) {
-        for (Account account : Accounts) {
-            if (account.Id.equals(id)) {
-                return account;
-            }
-        }
-        return null;
+
+    public Account GetAccount(String id) {
+        return entityManager.find(Account.class, id);
     }
-    /**
-     * Метод для добавления аккаунта в репозиторий аккаунтов
-     */
+
+    @Transactional
     public void AddAccount(Account account) {
-        Accounts.add(account);
+        entityManager.getTransaction().begin();
+        entityManager.persist(account);
+        entityManager.getTransaction().commit();
     }
-    /**
-     * Метод для удаления аккаунта
-     */
-    public void DeleteAccount(int id) {
-        Accounts.removeIf(account -> account.Id.equals(id));
+
+    @Transactional
+    public void DeleteAccount(String id) {
+        Account account = GetAccount(id);
+        if (account != null) {
+            entityManager.getTransaction().begin();
+            entityManager.remove(account);
+            entityManager.getTransaction().commit();
+        }
+    }
+
+    @Transactional
+    public void UpdateBalance(String id, Double amount) {
+        entityManager.getTransaction().begin();
+
+        Account account = entityManager.find(Account.class, id);
+        if (account != null) {
+            account.balance += amount;
+            entityManager.merge(account);
+        }
+
+        entityManager.getTransaction().commit();
     }
 }

@@ -6,6 +6,7 @@ import Enums.OperationType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Класс сервиса операций
@@ -21,11 +22,11 @@ public class OperationService {
     /**
      * Метод для получения истории операций конкретного пользователя
      */
-    public List<Operation> GetOperations(Integer id) {
+    public List<Operation> GetOperations(String id) {
         List<Operation> operations = operationRepository.GetOperations();
         List<Operation> filteredOperations = new ArrayList<>();
         for (Operation operation : operations) {
-            if (operation.AccountId == id) {
+            if (Objects.equals(operation.accountId, id)) {
                 filteredOperations.add(operation);
             }
         }
@@ -34,7 +35,7 @@ public class OperationService {
     /**
      * Метод для добавления операции в историю
      */
-    public void AddOperation(Integer accountId, OperationType operationType, Double amount) {
+    public void AddOperation(String accountId, OperationType operationType, Double amount) {
         operationRepository.AddOperation(accountId, operationType, amount);
     }
 }

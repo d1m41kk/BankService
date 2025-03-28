@@ -12,5 +12,5 @@ import java.util.List;
 
 public interface IOperationRepository {
     List<Operation> GetOperations();
-    void AddOperation(Integer accountId, OperationType operationType, Double amount);
+    void AddOperation(String accountId, OperationType operationType, Double amount);
 }
