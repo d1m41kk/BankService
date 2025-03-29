@@ -16,27 +16,23 @@ import javax.persistence.Persistence;
 
 public class Program {
     public static void main(String[] args) {
-        EntityManagerFactory entityManagerFactory = HibernateUtil.getEntityManagerFactory();
+        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
 
-        // Создаем репозитории, передавая EntityManagerFactory
-        IAccountRepository accountRepository = new AccountRepository(entityManagerFactory);
-        IOperationRepository operationRepository = new OperationRepository(entityManagerFactory);
-        ATMConsoleInterface consoleInterface = getAtmConsoleInterface(entityManagerFactory, accountRepository, operationRepository);
+        IAccountRepository accountRepository = new AccountRepository(sessionFactory);
+        IOperationRepository operationRepository = new OperationRepository(sessionFactory);
+        ATMConsoleInterface consoleInterface = getAtmConsoleInterface(sessionFactory, accountRepository, operationRepository);
         consoleInterface.Run();
 
-        // Закрываем соединение
         HibernateUtil.shutdown();
     }
 
-    private static ATMConsoleInterface getAtmConsoleInterface(EntityManagerFactory entityManagerFactory, IAccountRepository accountRepository, IOperationRepository operationRepository) {
-        IUserRepository userRepository = new UserRepository(entityManagerFactory);
+    private static ATMConsoleInterface getAtmConsoleInterface(SessionFactory sessionFactory, IAccountRepository accountRepository, IOperationRepository operationRepository) {
+        IUserRepository userRepository = new UserRepository(sessionFactory);
 
-        // Создаем сервисы
         AccountService accountService = new AccountService(accountRepository);
         OperationService operationService = new OperationService(operationRepository);
         UserService userService = new UserService(userRepository);
 
-        // Запускаем консольный интерфейс
         ATMConsoleInterface consoleInterface = new ATMConsoleInterface(
                 accountService,
                 operationService,

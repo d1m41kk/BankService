@@ -153,7 +153,7 @@ public class ATMConsoleInterface {
             System.out.println("3. Пополнение счета");
             System.out.println("4. Снятие средств");
             System.out.println("5. Выйти из аккаунта");
-            System.out.println("6. Удалить аккаунт"); // Новый пункт меню
+            System.out.println("6. Удалить аккаунт");
             System.out.print("Выберите действие: ");
 
             int choice = scanner.nextInt();
@@ -169,7 +169,7 @@ public class ATMConsoleInterface {
                     currentAccount = null;
                     return;
                 }
-                case 6 -> deleteAccount(); // Новый метод удаления аккаунта
+                case 6 -> deleteAccount();
                 default -> System.out.println("Некорректный выбор.");
             }
         }
@@ -187,7 +187,7 @@ public class ATMConsoleInterface {
         if (response.equals("да")) {
             accountService.DeleteAccount(currentAccount);
             System.out.println("Аккаунт успешно удален.");
-            currentAccount = null; // Очистка текущего аккаунта
+            currentAccount = null;
         } else {
             System.out.println("Удаление отменено.");
         }

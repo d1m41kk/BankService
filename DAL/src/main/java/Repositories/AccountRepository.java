@@ -2,49 +2,69 @@ package Repositories;
 
 import Abstractions.IAccountRepository;
 import Entities.Models.Account;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.transaction.Transactional;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 
 public class AccountRepository implements IAccountRepository {
-    private final EntityManager entityManager;
+    private final SessionFactory sessionFactory;
 
-    public AccountRepository(EntityManagerFactory entityManagerFactory) {
-        this.entityManager = HibernateUtil.getEntityManagerFactory().createEntityManager();
+    public AccountRepository(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
     }
 
     public Account GetAccount(String id) {
-        return entityManager.find(Account.class, id);
+        try (Session session = sessionFactory.openSession()) {
+            return session.get(Account.class, id);
+        }
     }
 
-    @Transactional
     public void AddAccount(Account account) {
-        entityManager.getTransaction().begin();
-        entityManager.persist(account);
-        entityManager.getTransaction().commit();
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
+            session.save(account);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null && transaction.getStatus().canRollback()) {
+                transaction.rollback();
+            }
+            throw e;
+        }
     }
 
-    @Transactional
     public void DeleteAccount(String id) {
-        Account account = GetAccount(id);
-        if (account != null) {
-            entityManager.getTransaction().begin();
-            entityManager.remove(account);
-            entityManager.getTransaction().commit();
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            Account account = session.get(Account.class, id);
+            if (account != null) {
+                transaction = session.beginTransaction();
+                session.delete(account);
+                transaction.commit();
+            }
+        } catch (Exception e) {
+            if (transaction != null && transaction.getStatus().canRollback()) {
+                transaction.rollback();
+            }
+            throw e;
         }
     }
 
-    @Transactional
     public void UpdateBalance(String id, Double amount) {
-        entityManager.getTransaction().begin();
-
-        Account account = entityManager.find(Account.class, id);
-        if (account != null) {
-            account.balance += amount;
-            entityManager.merge(account);
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
+            Account account = session.get(Account.class, id);
+            if (account != null) {
+                account.balance += amount;
+                session.update(account);
+            }
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null && transaction.getStatus().canRollback()) {
+                transaction.rollback();
+            }
+            throw e;
         }
-
-        entityManager.getTransaction().commit();
     }
 }
