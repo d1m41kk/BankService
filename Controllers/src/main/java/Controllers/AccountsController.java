@@ -2,11 +2,20 @@ package Controllers;
 
 import Entities.Services.AccountService;
 import Models.Account;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/accounts")
+@ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Успешный ответ"),
+        @ApiResponse(responseCode = "404", description = "Аккаунт не найден"),
+        @ApiResponse(responseCode = "500", description = "Ошибка сервера")
+})
 public class AccountsController {
     private final AccountService accountService;
 
@@ -16,8 +25,12 @@ public class AccountsController {
     }
 
     @GetMapping("/{id}")
-    Account getAccount(@PathVariable("id") String id) {
-        return accountService.getAccount(id);
+    public ResponseEntity<Account> getAccount(@PathVariable("id") String id) {
+        Account account= accountService.getAccount(id);
+        if (account == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(account, HttpStatus.OK);
     }
 
     @PostMapping

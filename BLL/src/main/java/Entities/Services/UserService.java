@@ -1,5 +1,6 @@
 package Entities.Services;
 
+import Enums.HairColor;
 import Models.User;
 import Repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,13 @@ public class UserService {
     public List<User> getUsers() {
         return userRepository.findAll();
     }
-    public void addUser(User user) {
+    public void addUser(String login, String name, Boolean sex, Integer age, HairColor hairColor) {
+        User user = new User();
+        user.login = login;
+        user.name = name;
+        user.sex = sex;
+        user.age = age;
+        user.hairColor = hairColor;
         userRepository.save(user);
     }
 
