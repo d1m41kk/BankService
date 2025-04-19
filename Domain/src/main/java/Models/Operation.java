@@ -1,15 +1,19 @@
-package Entities.Models;
+package Models;
 
 import Enums.OperationType;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /**
  * Класс, представляющий операции по счету.
  */
 @Entity
 @Table (name = "operations")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+
 public class Operation {
     @Id
     @GeneratedValue(generator = "uuid2")

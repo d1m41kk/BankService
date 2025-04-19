@@ -1,7 +1,9 @@
 package Entities.Services;
 
-import Abstractions.IUserRepository;
-import Entities.Models.User;
+import Models.User;
+import Repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -9,24 +11,23 @@ import java.util.List;
  * Класс, представляющий сервис пользователя
  */
 
+@Service
 public class UserService {
-    private final IUserRepository userRepository;
+    private final UserRepository userRepository;
 
-    public UserService(IUserRepository userRepository) {
+    @Autowired
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    public void AddUser(User user) {
-        userRepository.AddUser(user);
+    public List<User> getUsers() {
+        return userRepository.findAll();
+    }
+    public void addUser(User user) {
+        userRepository.save(user);
     }
 
-    public User GetUser(String login) {
-        List<User> users = userRepository.GetUsers();
-        for (User user : users) {
-            if (user.login.equals(login)) {
-                return user;
-            }
-        }
-        return null;
+    public User getUserByLogin(String login) {
+        return userRepository.getUserByLogin(login);
     }
 }

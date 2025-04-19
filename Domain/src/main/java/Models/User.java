@@ -1,8 +1,11 @@
-package Entities.Models;
+package Models;
 
 import Enums.HairColor;
 
-import javax.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +15,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "users")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "login")
 public class User {
     @Id
     @Column(name = "login", nullable = false, unique = true)
@@ -37,14 +41,6 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "friend_login")
     )
     public List<User> friends = new ArrayList<>();
-
-    public User(String login, String name, Boolean sex, Integer age, HairColor hairColor) {
-        this.login = login;
-        this.name = name;
-        this.sex = sex;
-        this.age = age;
-        this.hairColor = hairColor;
-    }
 
     public User() {
     }

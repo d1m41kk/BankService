@@ -1,15 +1,21 @@
-package Entities.Models;
+package Models;
 
 import Enums.HairColor;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /**
  * Класс, представляющий счет пользователя.
  */
 @Entity
 @Table(name="accounts")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Account {
     @Id
     @GeneratedValue(generator = "uuid2")
@@ -22,6 +28,7 @@ public class Account {
 
     @Column(name = "balance")
     public double balance;
+
     public Account(String ownerLogin) {
         this.ownerLogin = ownerLogin;
     }
