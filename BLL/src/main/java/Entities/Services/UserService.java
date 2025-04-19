@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * Класс, представляющий сервис пользователя
@@ -35,6 +36,9 @@ public class UserService {
     }
 
     public User getUserByLogin(String login) {
+        if (userRepository.getUserByLogin(login) == null) {
+            throw new NoSuchElementException("Пользователь не найден");
+        }
         return userRepository.getUserByLogin(login);
     }
 }

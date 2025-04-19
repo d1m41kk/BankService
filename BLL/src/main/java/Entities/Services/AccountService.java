@@ -8,6 +8,8 @@ import Repositories.OperationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
+
 /**
  * Класс, представляющий сервис аккаунта.
  */
@@ -24,12 +26,18 @@ public class AccountService {
      * Метод для добавления аккаунта
      */
     public void addAccount(Account account) {
+        if (getAccount(account.id) != null) {
+            throw new IllegalArgumentException("Счет уже существует");
+        }
         accountRepository.save(account);
     }
     /**
      * Метод для получения данных аккаунта
      */
     public Account getAccount(String id) {
+        if (accountRepository.findAccountById(id) == null) {
+            throw new NoSuchElementException("Аккаунт не найден");
+        }
         return accountRepository.findAccountById(id);
     }
     /**
