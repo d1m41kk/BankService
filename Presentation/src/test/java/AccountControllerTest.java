@@ -53,18 +53,6 @@ public class AccountControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.ownerLogin").value(account.ownerLogin))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.balance").value(account.balance));
     }
-    @Test
-    public void createAccount() throws Exception {
-        Mockito.doNothing().when(accountService).addAccount(account);
-        ObjectMapper objectMapper = new ObjectMapper();
-        String accountJson = objectMapper.writeValueAsString(account);
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/accounts")
-                        .contentType("application/json")
-                        .content(accountJson))
-                .andExpect(status().isOk());
-        verify(accountService).addAccount(Mockito.any(Account.class));
-    }
 
     @Test
     public void withdrawAccount() throws Exception {

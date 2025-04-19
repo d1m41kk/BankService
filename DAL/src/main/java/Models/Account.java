@@ -27,7 +27,7 @@ public class Account {
     public String ownerLogin;
 
     @Column(name = "balance")
-    public double balance;
+    public double balance = 0.0;
 
     public Account(String ownerLogin) {
         this.ownerLogin = ownerLogin;

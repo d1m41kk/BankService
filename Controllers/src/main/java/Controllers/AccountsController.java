@@ -2,6 +2,7 @@ package Controllers;
 
 import Entities.Services.AccountService;
 import Models.Account;
+import Requests.CreateAccountRequest;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +35,9 @@ public class AccountsController {
     }
 
     @PostMapping
-    void addAccount(@RequestBody Account account) {
+    ResponseEntity<?>  addAccount(@RequestBody CreateAccountRequest account) {
         accountService.addAccount(account);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PostMapping("/{id}/withdraw")

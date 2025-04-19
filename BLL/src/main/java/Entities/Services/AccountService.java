@@ -5,6 +5,7 @@ import Models.Account;
 import Models.Operation;
 import Repositories.AccountRepository;
 import Repositories.OperationRepository;
+import Requests.CreateAccountRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,10 +26,10 @@ public class AccountService {
     /**
      * Метод для добавления аккаунта
      */
-    public void addAccount(Account account) {
-        if (getAccount(account.id) != null) {
-            throw new IllegalArgumentException("Счет уже существует");
-        }
+    public void addAccount(CreateAccountRequest request) {
+
+        Account account = new Account(request.ownerId());
+
         accountRepository.save(account);
     }
     /**
