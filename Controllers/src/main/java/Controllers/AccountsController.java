@@ -38,12 +38,12 @@ public class AccountsController {
         accountService.addAccount(account);
     }
 
-    @PostMapping("/withdraw/{id}")
+    @PostMapping("/{id}/withdraw")
     void withdraw(@PathVariable("id") String id, @RequestBody Double amount) {
         accountService.withdraw(id, amount);
     }
 
-    @PostMapping("/deposit/{id}")
+    @PostMapping("{id}/deposit/")
     void deposit(@PathVariable("id") String id, @RequestBody Double amount) {
         accountService.Deposit(id, amount);
     }

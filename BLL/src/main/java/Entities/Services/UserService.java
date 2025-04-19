@@ -41,4 +41,12 @@ public class UserService {
         }
         return userRepository.getUserByLogin(login);
     }
+
+    public List<User> getUsersByHairColorAndSex(HairColor hairColor, Boolean sex){
+        List<User> users = userRepository.getUsersByHairColorAndSex(hairColor, sex);
+        if (users.isEmpty()) {
+            throw new NoSuchElementException("Пользователя с такими данными нет");
+        }
+        return users;
+    }
 }

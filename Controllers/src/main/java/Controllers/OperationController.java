@@ -23,7 +23,7 @@ public class OperationController {
         this.operationService = operationService;
     }
 
-    @GetMapping("/get_operations/{id}")
+    @GetMapping("/{id}")
     public List<Operation> getOperations(@PathVariable("id") String id) {
         return operationService.getOperations(id);
     }

@@ -2,6 +2,7 @@ package Controllers;
 
 import DTO.CreateUserDTO;
 import Entities.Services.UserService;
+import Enums.HairColor;
 import Models.User;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -25,7 +26,7 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
-    @GetMapping("/get_by_login/{login}")
+    @GetMapping("/{login}")
     public ResponseEntity<User> getUserByLogin(@PathVariable("login") String login) {
         User user = userService.getUserByLogin(login);
         if (user == null) {
@@ -46,5 +47,9 @@ public class UserController {
                 request.age,
                 request.hairColor
         );
+    }
+    @GetMapping("/filter")
+    public List<User> getUsersByHairColorAndSex(@RequestParam("hair_color") HairColor hairColor, @RequestParam("sex") Boolean sex){
+        return userService.getUsersByHairColorAndSex(hairColor, sex);
     }
 }
