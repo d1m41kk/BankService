@@ -1,6 +1,8 @@
 package BLL.Services;
 
 import BLL.JWT.JwtService;
+import BLL.Services.Requests.AccountDTO;
+import BLL.Services.Requests.CreateUserRequest;
 import DAL.Models.Client;
 import DAL.Repositories.ClientRepository;
 import Models.Account;
@@ -33,11 +35,11 @@ public class ClientService {
         return headers;
     }
 
-    public ResponseEntity<User> IAMMUSIC(String login, String token) {
-        HttpEntity<String> entity = new HttpEntity<>(getHeaders(token));
+    public ResponseEntity<CreateUserRequest> IAMMUSIC(String login, String token) {
+        HttpEntity<CreateUserRequest> entity = new HttpEntity<>(getHeaders(token));
         try {
             if (Objects.equals(jwtService.extractLogin(token), login)) {
-                return restTemplate.exchange(BASE + "/users/" + login, HttpMethod.GET, entity, User.class);
+                return restTemplate.exchange(BASE + "/users/" + login, HttpMethod.GET, entity, CreateUserRequest.class);
             }
         }
         catch (Exception e) {
@@ -46,12 +48,12 @@ public class ClientService {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
     }
 
-    public ResponseEntity<Account> getAccount(String id, String token) {
+    public ResponseEntity<AccountDTO> getAccount(String id, String token) {
         HttpEntity<String> entity = new HttpEntity<>(getHeaders(token));
         String url = BASE + "/accounts/" + id;
         try {
-            Account account = restTemplate.exchange(url, HttpMethod.GET, entity, Account.class).getBody();
-            if (account != null && account.getOwnerLogin().equals(jwtService.extractLogin(token))) {
+            AccountDTO account = restTemplate.exchange(url, HttpMethod.GET, entity, AccountDTO.class).getBody();
+            if (account != null && account.ownerLogin().equals(jwtService.extractLogin(token))) {
                 return ResponseEntity.ok(account);
             }
         }

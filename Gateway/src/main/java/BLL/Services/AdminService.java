@@ -1,11 +1,13 @@
 package BLL.Services;
 
 import BLL.JWT.JwtService;
+import BLL.Services.Enums.HairColor;
+import BLL.Services.Requests.AccountDTO;
+import BLL.Services.Requests.CreateUserRequest;
+import BLL.Services.Requests.OperationDTO;
 import DAL.Models.Client;
 import DAL.Repositories.AdminRepository;
 import DAL.Repositories.ClientRepository;
-import Enums.HairColor;
-import Models.Account;
 import Models.Operation;
 import Models.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,22 +49,17 @@ public class AdminService {
         client.setLogin(login);
         client.setPassword(passwordEncoder.encode(password));
         client.setRole("ROLE_CLIENT");
-        User user = new User();
-        user.setLogin(login);
-        user.setName(name);
-        user.setSex(sex);
-        user.setAge(age);
-        user.setHairColor(hairColor);
+        CreateUserRequest user = new CreateUserRequest(login, password, name, sex, age, hairColor);
         if (clientRepository.getClientByLogin(login) == null && adminRepository.getAdminByLogin(jwtService.extractLogin(token)) != null) {
             clientRepository.save(client);
-            HttpEntity<User> entity = new HttpEntity<>(user, getHeaders(token));
-            restTemplate.exchange(BASE + "/users/register", HttpMethod.POST, entity, User.class );
+            HttpEntity<CreateUserRequest> entity = new HttpEntity<>(user, getHeaders(token));
+            restTemplate.exchange(BASE + "/users/register", HttpMethod.POST, entity, CreateUserRequest.class );
             return ResponseEntity.status(HttpStatus.CREATED).build();
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
-    public ResponseEntity<List<User>> getUsersByHairColorAndSex(HairColor hairColor, Boolean sex, String token) {
+    public ResponseEntity<List<CreateUserRequest>> getUsersByHairColorAndSex(HairColor hairColor, Boolean sex, String token) {
         String url = BASE + "/users/filter?hair_color=" + hairColor.name() + "&sex=" + sex;
         HttpEntity<Void> entity = new HttpEntity<>(getHeaders(token));
 
@@ -70,14 +67,14 @@ public class AdminService {
             String login = jwtService.extractLogin(token);
 
             if (adminRepository.getAdminByLogin(login) != null) {
-                ResponseEntity<User[]> response = restTemplate.exchange(
+                ResponseEntity<CreateUserRequest[]> response = restTemplate.exchange(
                         url,
                         HttpMethod.GET,
                         entity,
-                        User[].class
+                        CreateUserRequest[].class
                 );
 
-                List<User> users = response.getBody() != null
+                List<CreateUserRequest> users = response.getBody() != null
                         ? List.of(response.getBody())
                         : new ArrayList<>();
 
@@ -90,11 +87,11 @@ public class AdminService {
         }
     }
 
-    public ResponseEntity<User> getClientByLogin(String login, String token) {
+    public ResponseEntity<CreateUserRequest> getClientByLogin(String login, String token) {
         HttpEntity<String> entity = new HttpEntity<>(getHeaders(token));
         try {
             if (adminRepository.getAdminByLogin(jwtService.extractLogin(token)) != null) {
-                return restTemplate.exchange(BASE + "/users/" + login, HttpMethod.GET, entity, User.class);
+                return restTemplate.exchange(BASE + "/users/" + login, HttpMethod.GET, entity, CreateUserRequest.class);
             }
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
@@ -103,12 +100,12 @@ public class AdminService {
         }
     }
 
-    public ResponseEntity<Account> getAccountByUsersLogin(String login, String token) {
-        HttpEntity<String> entity = new HttpEntity<>(getHeaders(token));
+    public ResponseEntity<AccountDTO> getAccountByUsersLogin(String login, String token) {
+        HttpEntity<AccountDTO> entity = new HttpEntity<>(getHeaders(token));
         String url = BASE + "/accounts/" + login;
         try {
             if (adminRepository.getAdminByLogin(jwtService.extractLogin(token)) != null) {
-                return restTemplate.exchange(url, HttpMethod.GET, entity, Account.class);
+                return restTemplate.exchange(url, HttpMethod.GET, entity, AccountDTO.class);
             }
         }
         catch (Exception e) {
@@ -117,19 +114,19 @@ public class AdminService {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
     }
 
-    public ResponseEntity<List<Operation>> getOperationsByAccountId(String id, String token) {
-        HttpEntity<String> entity = new HttpEntity<>(getHeaders(token));
+    public ResponseEntity<List<OperationDTO>> getOperationsByAccountId(String id, String token) {
+        HttpEntity<OperationDTO> entity = new HttpEntity<>(getHeaders(token));
         String url = BASE + "/operations/" + id;
         try {
             if (adminRepository.getAdminByLogin(jwtService.extractLogin(token)) != null) {
-                ResponseEntity<Operation[]> response = restTemplate.exchange(
+                ResponseEntity<OperationDTO[]> response = restTemplate.exchange(
                         url,
                         HttpMethod.GET,
                         entity,
-                        Operation[].class
+                        OperationDTO[].class
                 );
 
-                List<Operation> operations = response.getBody() != null
+                List<OperationDTO> operations = response.getBody() != null
                         ? List.of(response.getBody())
                         : new ArrayList<>();
 

@@ -1,22 +1,16 @@
 package Controllers;
 
-import BLL.JWT.JwtService;
 import BLL.Services.AdminService;
+import BLL.Services.Enums.HairColor;
+import BLL.Services.Requests.AccountDTO;
 import BLL.Services.Requests.CreateUserRequest;
-import DAL.Models.Client;
-import DAL.Repositories.AdminRepository;
-import DAL.Repositories.ClientRepository;
-import Enums.HairColor;
+import BLL.Services.Requests.OperationDTO;
 import Models.Account;
 import Models.Operation;
 import Models.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
@@ -43,22 +37,22 @@ public class AdminController {
     }
 
     @GetMapping("/filter_users")
-    public ResponseEntity<List<User>> filterUsers(@RequestParam("hairColor") HairColor hairColor, @RequestParam("sex") Boolean sex, @RequestParam("token") String token) {
+    public ResponseEntity<List<CreateUserRequest>> filterUsers(@RequestParam("hairColor") HairColor hairColor, @RequestParam("sex") Boolean sex, @RequestParam("token") String token) {
         return adminService.getUsersByHairColorAndSex(hairColor, sex, token);
     }
 
     @GetMapping("/get_user/{login}")
-    public ResponseEntity<User> getUser(@PathVariable("login") String login, @RequestParam("token") String token) {
+    public ResponseEntity<CreateUserRequest> getUser(@PathVariable("login") String login, @RequestParam("token") String token) {
         return adminService.getClientByLogin(login, token);
     }
 
     @GetMapping("/get_account/{login}")
-    public ResponseEntity<Account> getAccount(@PathVariable("login") String login, @RequestParam("token") String token) {
+    public ResponseEntity<AccountDTO> getAccount(@PathVariable("login") String login, @RequestParam("token") String token) {
         return adminService.getAccountByUsersLogin(login, token);
     }
 
     @GetMapping("/get_operations_of_account/{id}")
-    public ResponseEntity<List<Operation>> getOperationsOfAccount(@PathVariable("id") String id, @RequestParam("token") String token) {
+    public ResponseEntity<List<OperationDTO>> getOperationsOfAccount(@PathVariable("id") String id, @RequestParam("token") String token) {
         return adminService.getOperationsByAccountId(id, token);
     }
 }
