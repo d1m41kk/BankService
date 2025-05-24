@@ -40,6 +40,7 @@ public class UserController {
     public List<User> getUsers() {
         return userService.getUsers();
     }
+
     @PostMapping("/register")
     public void createUser(@RequestBody CreateUserDTO request) {
         userService.addUser(
@@ -72,4 +73,10 @@ public class UserController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return auth.getName();
     }
+
+    @GetMapping("/friends/{login}")
+    public List<User> getFriends(@PathVariable("login") String login) {
+        return userService.getFriends(login);
+    }
+
 }

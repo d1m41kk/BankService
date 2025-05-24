@@ -10,6 +10,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
@@ -41,6 +42,10 @@ public class AccountService {
             throw new NoSuchElementException("Аккаунт не найден");
         }
         return accountRepository.findAccountById(id);
+    }
+
+    public List<Account> getAccounts(String ownerLogin) {
+        return accountRepository.findAccountByOwnerLogin(ownerLogin);
     }
     /**
      * Метод для удаления аккаунта

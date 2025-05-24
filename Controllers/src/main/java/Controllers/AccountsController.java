@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/accounts")
 @ApiResponses({
@@ -52,6 +54,11 @@ public class AccountsController {
     @GetMapping("/{id}/balance")
     Double getBalance(@PathVariable("id") String id) {
         return accountService.getBalance(id);
+    }
+
+    @GetMapping("/get_accounts_by_owner/{login}")
+    List<Account> getAccountsByOwner(@PathVariable("login") String ownerLogin) {
+        return accountService.getAccounts(ownerLogin);
     }
 
     @DeleteMapping("/{id}")

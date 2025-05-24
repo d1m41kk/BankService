@@ -82,4 +82,9 @@ public class UserService {
         userRepository.save(user);
         userRepository.save(friend);
     }
+
+    public List<User> getFriends(String login) {
+        User user = userRepository.getUserByLogin(login);
+        return user.friends;
+    }
 }

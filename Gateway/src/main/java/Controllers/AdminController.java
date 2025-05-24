@@ -25,9 +25,9 @@ public class AdminController {
     }
 
     @PostMapping("/create_user")
-    public ResponseEntity<?> createUser(@RequestBody CreateUserRequest createUserRequest,
+    public void createUser(@RequestBody CreateUserRequest createUserRequest,
                                         @RequestParam("token") String token) {
-        return adminService.createClient(createUserRequest.login(),
+        adminService.createClient(createUserRequest.login(),
                 createUserRequest.password(),
                 createUserRequest.name(),
                 createUserRequest.sex(),
@@ -37,22 +37,22 @@ public class AdminController {
     }
 
     @GetMapping("/filter_users")
-    public ResponseEntity<List<CreateUserRequest>> filterUsers(@RequestParam("hairColor") HairColor hairColor, @RequestParam("sex") Boolean sex, @RequestParam("token") String token) {
+    public List<CreateUserRequest> filterUsers(@RequestParam("hairColor") HairColor hairColor, @RequestParam("sex") Boolean sex, @RequestParam("token") String token) {
         return adminService.getUsersByHairColorAndSex(hairColor, sex, token);
     }
 
     @GetMapping("/get_user/{login}")
-    public ResponseEntity<CreateUserRequest> getUser(@PathVariable("login") String login, @RequestParam("token") String token) {
+    public CreateUserRequest getUser(@PathVariable("login") String login, @RequestParam("token") String token) {
         return adminService.getClientByLogin(login, token);
     }
 
     @GetMapping("/get_account/{login}")
-    public ResponseEntity<AccountDTO> getAccount(@PathVariable("login") String login, @RequestParam("token") String token) {
+    public AccountDTO getAccount(@PathVariable("login") String login, @RequestParam("token") String token) {
         return adminService.getAccountByUsersLogin(login, token);
     }
 
     @GetMapping("/get_operations_of_account/{id}")
-    public ResponseEntity<List<OperationDTO>> getOperationsOfAccount(@PathVariable("id") String id, @RequestParam("token") String token) {
+    public List<OperationDTO> getOperationsOfAccount(@PathVariable("id") String id, @RequestParam("token") String token) {
         return adminService.getOperationsByAccountId(id, token);
     }
 }
