@@ -1,6 +1,5 @@
 package Models;
 
-import Enums.HairColor;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.Entity;
@@ -21,13 +20,35 @@ public class Account {
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Column(columnDefinition = "UUID")
-    public String id;
+    private String id;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     @Column(name = "owner_login")
-    public String ownerLogin;
+    private String ownerLogin;
 
+    public String getOwnerLogin() {
+        return ownerLogin;
+    }
+
+    public void setOwnerLogin(String ownerLogin) {
+        this.ownerLogin = ownerLogin;
+    }
     @Column(name = "balance")
-    public double balance = 0.0;
+    private double balance = 0.0;
+
+    public double getBalance() {
+        return balance;
+    }
+    public void setBalance(double balance) {
+        this.balance = balance;
+    }
 
     public Account(String ownerLogin) {
         this.ownerLogin = ownerLogin;

@@ -26,19 +26,6 @@ public class OperationService {
      * Метод для получения истории операций конкретного пользователя
      */
     public List<Operation> getOperations(String id) {
-        List<Operation> operations = operationRepository.findOperationsByAccountId(id);
-        List<Operation> filteredOperations = new ArrayList<>();
-        for (Operation operation : operations) {
-            if (Objects.equals(operation.accountId, id)) {
-                filteredOperations.add(operation);
-            }
-        }
-        return filteredOperations;
-    }
-    /**
-     * Метод для добавления операции в историю
-     */
-    public void addOperation(String accountId, OperationType operationType, Double amount) {
-        operationRepository.save(new Operation(accountId, operationType, amount));
+        return operationRepository.findOperationsByAccountId(id);
     }
 }

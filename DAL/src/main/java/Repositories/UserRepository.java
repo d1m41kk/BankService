@@ -11,4 +11,5 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<User, String> {
     User getUserByLogin(String login);
     List<User> getUsersByHairColorAndSex(HairColor hairColor, Boolean sex);
+    void deleteUsersByLogin(String login);
 }

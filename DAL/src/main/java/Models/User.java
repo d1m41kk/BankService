@@ -17,22 +17,54 @@ import java.util.List;
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "login")
 public class User {
     @Id
-    @Column(name = "login", nullable = false, unique = true)
-    public String login;
+    @Column(name = "login", nullable = false)
+    private String login;
+
+    public String getLogin() {
+        return login;
+    }
+    public void setLogin(String login) {
+        this.login = login;
+    }
 
     @Column(name = "name", nullable = false)
-    public String name;
+    private String name;
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
 
     @Column(name = "sex")
-    public Boolean sex;
+    private Boolean sex;
+    public Boolean getSex(){
+        return sex;
+    }
+    public void setSex(Boolean sex){
+        this.sex = sex;
+    }
 
     @Column(name = "age")
-    public Integer age;
+    private Integer age;
+    public Integer getAge(){
+        return age;
+    }
+    public void setAge(Integer age){
+        this.age = age;
+    }
 
     @Enumerated(EnumType.STRING)
     @Column(name = "hair_color")
-    public HairColor hairColor;
+    private HairColor hairColor;
 
+    public HairColor getHairColor() {
+        return hairColor;
+    }
+
+    public void setHairColor(HairColor hairColor) {
+        this.hairColor = hairColor;
+    }
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "user_friends",

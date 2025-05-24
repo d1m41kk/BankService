@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 })
 public class AccountsController {
     private final AccountService accountService;
-
     @Autowired
     public AccountsController(AccountService accountService) {
         this.accountService = accountService;
@@ -35,8 +34,8 @@ public class AccountsController {
     }
 
     @PostMapping
-    ResponseEntity<?>  addAccount(@RequestBody CreateAccountRequest account) {
-        accountService.addAccount(account);
+    ResponseEntity<?> createAccount(@RequestBody CreateAccountRequest account) {
+        accountService.createAccount(account);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -45,13 +44,18 @@ public class AccountsController {
         accountService.withdraw(id, amount);
     }
 
-    @PostMapping("{id}/deposit/")
+    @PostMapping("/{id}/deposit")
     void deposit(@PathVariable("id") String id, @RequestBody Double amount) {
-        accountService.Deposit(id, amount);
+        accountService.deposit(id, amount);
     }
 
     @GetMapping("/{id}/balance")
     Double getBalance(@PathVariable("id") String id) {
         return accountService.getBalance(id);
+    }
+
+    @DeleteMapping("/{id}")
+    void delete(@PathVariable("id") String id) {
+        accountService.deleteAccountById(id);
     }
 }

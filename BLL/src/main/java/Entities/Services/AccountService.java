@@ -6,6 +6,7 @@ import Models.Operation;
 import Repositories.AccountRepository;
 import Repositories.OperationRepository;
 import Requests.CreateAccountRequest;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +27,7 @@ public class AccountService {
     /**
      * Метод для добавления аккаунта
      */
-    public void addAccount(CreateAccountRequest request) {
+    public void createAccount(CreateAccountRequest request) {
 
         Account account = new Account(request.ownerId());
 
@@ -45,15 +46,15 @@ public class AccountService {
      * Метод для удаления аккаунта
      */
     public void deleteAccount(Account account) {
-        accountRepository.deleteAccountById(account.id);
+        accountRepository.deleteAccountById(account.getId());
     }
     /**
      * Метод для снятия наличных
      */
     public void withdraw(String id, Double amount) {
-        if (accountRepository.findAccountById(id).balance >= amount) {
+        if (accountRepository.findAccountById(id).getBalance() >= amount) {
             Account account = accountRepository.findAccountById(id);
-            account.balance -= amount;
+            account.setBalance(account.getBalance() - amount);
             OperationType operationType = OperationType.Withdrawal;
             Operation operation = new Operation(id, operationType, amount);
             operationRepository.save(operation);
@@ -63,9 +64,9 @@ public class AccountService {
     /**
      * Метод для внесения наличных
      */
-    public void Deposit(String id, Double amount) {
+    public void deposit(String id, Double amount) {
         Account account = accountRepository.findAccountById(id);
-        account.balance += amount;
+        account.setBalance(account.getBalance() + amount);
         OperationType operationType = OperationType.Deposit;
         Operation operation = new Operation(id, operationType, amount);
         operationRepository.save(operation);
@@ -76,10 +77,15 @@ public class AccountService {
      */
     public Double getBalance(String id) {
         if (accountRepository.findAccountById(id) != null) {
-            return accountRepository.findAccountById(id).balance;
+            return accountRepository.findAccountById(id).getBalance();
         }
         else {
             return null;
         }
+    }
+    @Transactional
+    public void deleteAccountById(String id) {
+        operationRepository.deleteAllByAccountId(id);
+        accountRepository.deleteAccountById(id);
     }
 }

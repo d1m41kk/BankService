@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface OperationRepository extends JpaRepository<Operation, String> {
     List<Operation> findOperationsByAccountId(String id);
+    void deleteAllByAccountId(String id);
 }

@@ -37,26 +37,26 @@ public class AccountControllerTest {
     @BeforeEach
     void setUp() {
         account = new Account();
-        account.id = UUID.randomUUID().toString();
-        account.ownerLogin = "eblan";
-        account.balance = 100;
+        account.setId(UUID.randomUUID().toString());
+        account.setOwnerLogin("eblan");
+        account.setBalance(100);
     }
 
     @Test
     public void getAccount() throws Exception {
-        String id = account.id;
+        String id = account.getId();
         Mockito.when(accountService.getAccount(id)).thenReturn(account);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/accounts/{id}", id))
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(account.id))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.ownerLogin").value(account.ownerLogin))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.balance").value(account.balance));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(account.getId()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.ownerLogin").value(account.getOwnerLogin()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.balance").value(account.getBalance()));
     }
 
     @Test
     public void withdrawAccount() throws Exception {
-        String id = account.id;
+        String id = account.getId();
         double amount = 50.0;
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/accounts/withdraw/{id}", id)

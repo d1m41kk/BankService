@@ -13,6 +13,7 @@
         <module>BLL</module>
         <module>Presentation</module>
         <module>Controllers</module>
+        <module>Gateway</module>
     </modules>
 
     <properties>
