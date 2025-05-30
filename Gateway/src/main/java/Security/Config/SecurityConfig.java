@@ -34,29 +34,18 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService clientDetailsService() {
-        return new ATMClientDetailsService(clientRepository);
+    public UserDetailsService userDetailsService() {
+        return new CombinedUserDetailsService(
+                new ATMAdminDetailsService(adminRepository),
+                new ATMClientDetailsService(clientRepository));
     }
 
     @Bean
-    public UserDetailsService adminDetailsService() {
-        return new ATMAdminDetailsService(adminRepository);
-    }
-
-    @Bean
-    public AuthenticationProvider authenticationProviderForClient() {
-        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setUserDetailsService(clientDetailsService());
-        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
-        return daoAuthenticationProvider;
-    }
-
-    @Bean
-    public AuthenticationProvider authenticationProviderForAdmin() {
-        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setUserDetailsService(adminDetailsService());
-        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
-        return daoAuthenticationProvider;
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService());
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
     }
 
     @Bean
@@ -69,6 +58,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/create_user").hasRole("ADMIN")
+                        .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/users/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/users/register").permitAll()
                         .requestMatchers("/api/users/filter").hasAnyRole("ADMIN")
@@ -96,8 +86,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
-        builder.authenticationProvider(authenticationProviderForClient());
-        builder.authenticationProvider(authenticationProviderForAdmin());
+        builder.authenticationProvider(authenticationProvider());
         return builder.build();
     }
 }

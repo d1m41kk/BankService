@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,66 +24,60 @@ public class UserClient {
         this.restTemplate = restTemplate;
     }
 
-    public void createUser(CreateUserRequest createUserRequest, HttpHeaders headers) {
-        HttpEntity<CreateUserRequest> request = new HttpEntity<>(createUserRequest, headers);
+    public void createUser(CreateUserRequest createUserRequest) {
         restTemplate.exchange(
                 BASE + "register",
                 HttpMethod.POST,
-                request,
+                null,
                 CreateUserRequest.class
         );
     }
 
-    public CreateUserRequest getUserByLogin(String login, HttpHeaders headers) {
-        HttpEntity<?> entity = new HttpEntity<>(headers);
+    public CreateUserRequest getUserByLogin(String login) {
         ResponseEntity<CreateUserRequest> response = restTemplate.exchange(
                 BASE + login,
                 HttpMethod.GET,
-                entity,
+                null,
                 CreateUserRequest.class
         );
         return response.getBody();
     }
 
-    public void createFriendship(String login1, String login2, HttpHeaders headers) {
-        HttpEntity<?> entity = new HttpEntity<>(headers);
+    public void createFriendship(String login1, String login2) {
         restTemplate.exchange(
                 BASE + login1 + "/" + login2 + "/friendship",
                 HttpMethod.POST,
-                entity,
+                null,
                 Void.class
         );
     }
 
-    public void deleteFriendship(String login1, String login2, HttpHeaders headers) {
-        HttpEntity<?> entity = new HttpEntity<>(headers);
+    public void deleteFriendship(String login1, String login2) {
         restTemplate.exchange(
                 BASE + login1 + "/" + login2 + "/friendship",
                 HttpMethod.DELETE,
-                entity,
+                null,
                 Void.class
         );
     }
 
-    public List<CreateUserRequest> getUsersByHairColorAndSex(HairColor hairColor, Boolean sex, HttpHeaders httpHeaders){
-        HttpEntity<CreateUserRequest[]> entity = new HttpEntity<>(httpHeaders);
+    public List<CreateUserRequest> getUsersByHairColorAndSex(HairColor hairColor, Boolean sex){
         ResponseEntity<CreateUserRequest[]> response = restTemplate.exchange(
                 BASE + "filter?hair_color=" + hairColor.name() + "&sex=" + sex,
                 HttpMethod.GET,
-                entity,
+                null,
                 CreateUserRequest[].class
         );
         return List.of(Objects.requireNonNull(response.getBody()));
     }
 
-    public List<CreateUserRequest> getFriends(String login, HttpHeaders headers) {
-        HttpEntity<?> entity = new HttpEntity<>(headers);
+    public List<CreateUserRequest> getFriends(String login) {
         ResponseEntity<CreateUserRequest[]> response = restTemplate.exchange(
                 BASE + "friends/" + login,
                 HttpMethod.GET,
-                entity,
+                null,
                 CreateUserRequest[].class
         );
-        return List.of(Objects.requireNonNull(response.getBody()));
+        return response.getBody() != null ? List.of(response.getBody()) : Collections.emptyList();
     }
 }

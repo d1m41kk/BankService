@@ -9,6 +9,8 @@ import DAL.Models.Client;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,8 +28,8 @@ public class ClientController {
     }
 
     @GetMapping("/YES_I_AM/{login}")
-    public ResponseEntity<CreateUserRequest> getClient(@PathVariable("login") String login, @RequestParam("token") String token) {
-        CreateUserRequest user = clientService.IAMMUSIC(login, token);
+    public ResponseEntity<CreateUserRequest> getClient(@PathVariable("login") String login) {
+        CreateUserRequest user = clientService.IAMMUSIC(login);
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -35,8 +37,8 @@ public class ClientController {
     }
 
     @GetMapping("/my_account/{id}")
-    public ResponseEntity<AccountDTO> getMyAccount(@PathVariable("id") String id, @RequestParam("token") String token) {
-        AccountDTO account = clientService.getAccount(id, token);
+    public ResponseEntity<AccountDTO> getMyAccount(@PathVariable("id") String id) {
+        AccountDTO account = clientService.getAccount(id);
         if (account == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -44,31 +46,27 @@ public class ClientController {
     }
 
     @PostMapping("{user_login}/{friend_login}/friendship")
-    public void createFriendship(@PathVariable("user_login") String user_login,
-                                              @PathVariable("friend_login") String friend_login,
-                                              @RequestParam("token") String token){
-        clientService.createFriendship(user_login, friend_login, token);
+    public void createFriendship(@PathVariable("user_login") String user_login, @PathVariable("friend_login") String friend_login){
+        clientService.createFriendship(user_login, friend_login);
     }
 
     @DeleteMapping("{user_login}/{friend_login}/friendship")
-    public void deleteFriendship(@PathVariable("user_login") String user_login,
-                                              @PathVariable("friend_login") String friend_login,
-                                              @RequestParam("token") String token){
-        clientService.deleteFriendship(user_login, friend_login, token);
+    public void deleteFriendship(@PathVariable("user_login") String user_login, @PathVariable("friend_login") String friend_login){
+        clientService.deleteFriendship(user_login, friend_login);
     }
 
     @PostMapping("/{id}/deposit")
-    public void deposit(@PathVariable("id") String id, @RequestParam("token") String token, @RequestBody Double amount) {
-        clientService.deposit(id, token, amount);
+    public void deposit(@PathVariable("id") String id, @RequestBody Double amount) {
+        clientService.deposit(id, amount);
     }
 
     @PostMapping("/{id}/withdraw")
-    public void withdraw(@PathVariable("id") String id, @RequestParam("token") String token, @RequestBody Double amount) {
-        clientService.withdraw(id, token, amount);
+    public void withdraw(@PathVariable("id") String id, @RequestBody Double amount) {
+        clientService.withdraw(id, amount);
     }
 
     @GetMapping("/get_friends")
-    public List<FriendAccountDTO> getFriends(@RequestParam("token") String token) {
-        return clientService.getFriendsWithAccounts(jwtService.extractLogin(token), token);
+    public List<FriendAccountDTO> getFriends() {
+        return clientService.getFriendsWithAccounts();
     }
 }

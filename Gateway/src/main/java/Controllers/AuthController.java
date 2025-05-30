@@ -11,12 +11,15 @@ import DAL.Repositories.ClientRepository;
 import Security.Config.ATMAdminDetails;
 import Security.Config.ATMClientDetails;
 import Security.Config.ATMEntityDetails;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -27,9 +30,7 @@ import org.springframework.web.client.RestTemplate;
 @RequestMapping("/api/auth")
 public class AuthController {
     private final JwtService jwtService;
-    private final ClientRepository clientRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final AdminRepository adminRepository;
+    private final AuthenticationManager authenticationManager;
 
     @Autowired
     AuthController(AdminService adminService,
@@ -37,40 +38,44 @@ public class AuthController {
                    RestTemplate restTemplate,
                    ClientRepository clientRepository,
                    PasswordEncoder passwordEncoder,
-                   AdminRepository adminRepository) {
+                   AdminRepository adminRepository,
+                   AuthenticationManager authenticationManager) {
         this.jwtService = jwtService;
-        this.clientRepository = clientRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.adminRepository = adminRepository;
+        this.authenticationManager = authenticationManager;
     }
 
     @PostMapping("/login")
+    @Operation(tags = "auth")
     public ResponseEntity<String> login(@RequestBody AuthRequest authRequest) {
-        String login = authRequest.login();
-        String password = authRequest.password();
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            authRequest.login(),
+                            authRequest.password()
+                    )
+            );
 
-        Client client = clientRepository.getClientByLogin(login);
+            ATMEntityDetails userDetails = (ATMEntityDetails) authentication.getPrincipal();
+            String token = jwtService.generateToken(userDetails);
 
-        ATMEntityDetails details;
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                    userDetails,
+                    token,
+                    userDetails.getAuthorities()
+            );
 
-        if (client != null && passwordEncoder.matches(password, client.getPassword())) {
-            details = new ATMClientDetails(client);
-        } else {
-            Admin admin = adminRepository.getAdminByLogin(login);
-            if (admin != null && passwordEncoder.matches(password, admin.getPassword())) {
-                details = new ATMAdminDetails(admin);
-            } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Неверный логин или пароль");
-            }
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+
+            return ResponseEntity.ok()
+                    .header("Authorization", "Bearer " + token)
+                    .body("Успешная аутентификация");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Ошибка аутентификации");
         }
-
-        String token = jwtService.generateToken(details);
-        return ResponseEntity.ok()
-                .header("Authorization", "Bearer " + token)
-                .body("Успешная аутентификация");
     }
 
     @PostMapping("/logout")
+    @Operation(tags = "auth")
     public ResponseEntity<String> logout(HttpServletRequest request) {
         SecurityContextHolder.clearContext();
         HttpSession session = request.getSession(false);

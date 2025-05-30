@@ -3,6 +3,7 @@ package Models;
 import Enums.HairColor;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import java.util.ArrayList;
@@ -71,6 +72,8 @@ public class User {
             joinColumns = @JoinColumn(name = "user_login"),
             inverseJoinColumns = @JoinColumn(name = "friend_login")
     )
+
+    @JsonIgnore
     public List<User> friends = new ArrayList<>();
 
     public User() {

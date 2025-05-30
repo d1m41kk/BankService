@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,55 +24,53 @@ public class AccountClient {
         this.restTemplate = restTemplate;
     }
 
-    public AccountDTO getAccount(String id, HttpHeaders headers) {
-        HttpEntity<AccountDTO> entity = new HttpEntity<>(headers);
+    public AccountDTO getAccount(String id) {
         ResponseEntity<AccountDTO> response = restTemplate.exchange(
                 BASE + id,
                 HttpMethod.GET,
-                entity,
+                null,
                 AccountDTO.class
         );
         return response.getBody();
     }
 
-    public List<AccountDTO> getAccounts(String ownerLogin, HttpHeaders headers) {
-        HttpEntity<AccountDTO> entity = new HttpEntity<>(headers);
+    public List<AccountDTO> getAccounts(String ownerLogin) {
         ResponseEntity<AccountDTO[]> response = restTemplate.exchange(
                 BASE + "get_accounts_by_owner/" + ownerLogin,
                 HttpMethod.GET,
-                entity,
+                null,
                 AccountDTO[].class
         );
-        return List.of(Objects.requireNonNull(response.getBody()));
+        AccountDTO[] body = response.getBody();
+        return body != null ? List.of(body) : Collections.emptyList();
     }
 
-    public List<OperationDTO> getOperations(String id, HttpHeaders headers) {
-        HttpEntity<OperationDTO> entity = new HttpEntity<>(headers);
+    public List<OperationDTO> getOperations(String id) {
         ResponseEntity<OperationDTO[]> response = restTemplate.exchange(
-                BASE + id,
+                "http://localhost:8080/api/operations/" + id,
                 HttpMethod.GET,
-                entity,
+                null,
                 OperationDTO[].class
         );
         return List.of(Objects.requireNonNull(response.getBody()));
     }
 
-    public void withdraw(String id, Double amount, HttpHeaders headers) {
-        HttpEntity<Double> entity = new HttpEntity<>(amount, headers);
+    public void withdraw(String id, Double amount) {
+        HttpEntity<Double> request = new HttpEntity<>(amount);
         restTemplate.exchange(
                 BASE + id + "/withdraw",
                 HttpMethod.POST,
-                entity,
+                request,
                 Void.class
         );
     }
 
-    public void deposit(String id, Double amount, HttpHeaders headers) {
-        HttpEntity<Double> entity = new HttpEntity<>(amount, headers);
+    public void deposit(String id, Double amount) {
+        HttpEntity<Double> request = new HttpEntity<>(amount);
         restTemplate.exchange(
                 BASE + id + "/deposit",
                 HttpMethod.POST,
-                entity,
+                request,
                 Void.class
         );
     }

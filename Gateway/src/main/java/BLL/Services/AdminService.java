@@ -10,31 +10,27 @@ import Controllers.Clients.UserClient;
 import DAL.Models.Client;
 import DAL.Repositories.AdminRepository;
 import DAL.Repositories.ClientRepository;
-import Models.Operation;
-import Models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class AdminService {
-    private final RestTemplate restTemplate;
     private final ClientRepository clientRepository;
     private final AdminRepository adminRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
-    private static final String BASE = "http://localhost:8080/api";
     private final AccountClient accountClient;
     private final UserClient userClient;
 
     @Autowired
     public AdminService(RestTemplate restTemplate, ClientRepository clientRepository, AdminRepository adminRepository, JwtService jwtService, PasswordEncoder passwordEncoder, AccountClient accountClient, UserClient userClient) {
-        this.restTemplate = restTemplate;
         this.clientRepository = clientRepository;
         this.adminRepository = adminRepository;
         this.jwtService = jwtService;
@@ -50,7 +46,7 @@ public class AdminService {
         return headers;
     }
 
-    public void createClient(String login, String password, String name, Boolean sex, Integer age, HairColor hairColor, String token) {
+    public void createClient(String login, String password, String name, Boolean sex, Integer age, HairColor hairColor) {
         if (clientRepository.getClientByLogin(login) != null) {
             throw new IllegalArgumentException("Client with login " + login + " already exists");
         }
@@ -60,33 +56,33 @@ public class AdminService {
         client.setRole("ROLE_CLIENT");
         clientRepository.save(client);
         CreateUserRequest request = new CreateUserRequest(login, password, name, sex, age, hairColor);
-        userClient.createUser(request, getHeaders(token));
+        userClient.createUser(request);
     }
 
-    public List<CreateUserRequest> getUsersByHairColorAndSex(HairColor hairColor, Boolean sex, String token) {
-        if (adminRepository.getAdminByLogin(jwtService.extractLogin(token)) != null) {
-            return userClient.getUsersByHairColorAndSex(hairColor, sex, getHeaders(token));
+    public List<CreateUserRequest> getUsersByHairColorAndSex(HairColor hairColor, Boolean sex) {
+        String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (adminRepository.getAdminByLogin(currentLogin) != null) {
+            return userClient.getUsersByHairColorAndSex(hairColor, sex);
         }
         throw new IllegalArgumentException("Invalid token");
     }
 
-    public CreateUserRequest getClientByLogin(String login, String token) {
-        if (clientRepository.getClientByLogin(login) != null) {
-            return userClient.getUserByLogin(login, getHeaders(token));
+    public CreateUserRequest getClientByLogin(String login) {
+        return userClient.getUserByLogin(login);
+    }
+
+    public List<AccountDTO> getAccountByUsersLogin(String login) {
+        String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (adminRepository.getAdminByLogin(currentLogin) != null) {
+            return accountClient.getAccounts(login);
         }
         throw new IllegalArgumentException("Invalid token");
     }
 
-    public AccountDTO getAccountByUsersLogin(String login, String token) {
-        if (adminRepository.getAdminByLogin(jwtService.extractLogin(token)) != null) {
-            return accountClient.getAccount(login, getHeaders(token));
-        }
-        throw new IllegalArgumentException("Invalid token");
-    }
-
-    public List<OperationDTO> getOperationsByAccountId(String id, String token) {
-        if (adminRepository.getAdminByLogin(jwtService.extractLogin(token)) != null) {
-            return accountClient.getOperations(id, getHeaders(token));
+    public List<OperationDTO> getOperationsByAccountId(String id) {
+        String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (adminRepository.getAdminByLogin(currentLogin) != null) {
+            return accountClient.getOperations(id);
         }
         throw new IllegalArgumentException("Invalid token");
     }
