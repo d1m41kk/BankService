@@ -1,6 +1,7 @@
 package Entities.Services;
 
 import Enums.OperationType;
+import Kafka.KafkaSender;
 import Models.Account;
 import Models.Operation;
 import Repositories.AccountRepository;
@@ -20,10 +21,12 @@ import java.util.NoSuchElementException;
 public class AccountService {
     private final AccountRepository accountRepository;
     private final OperationRepository operationRepository;
+    private final KafkaSender kafkaSender;
     @Autowired
-    public AccountService(AccountRepository accountRepository, OperationRepository operationRepository) {
+    public AccountService(AccountRepository accountRepository, OperationRepository operationRepository, KafkaSender kafkaSender) {
         this.accountRepository = accountRepository;
         this.operationRepository = operationRepository;
+        this.kafkaSender = kafkaSender;
     }
     /**
      * Метод для добавления аккаунта
@@ -31,8 +34,9 @@ public class AccountService {
     public void createAccount(CreateAccountRequest request) {
 
         Account account = new Account(request.ownerId());
-
         accountRepository.save(account);
+        String json = String.format("{\"event\":\"AccountCreated\", \"accountId\":\"%s\"}", account.getId());
+        kafkaSender.sendAccountEvent(account.getId(), json);
     }
     /**
      * Метод для получения данных аккаунта
@@ -64,6 +68,8 @@ public class AccountService {
             Operation operation = new Operation(id, operationType, amount);
             operationRepository.save(operation);
             accountRepository.save(account);
+            String json = String.format("{\"event\":\"Withdraw\", \"accountId\":\"%s\", \"amount\":%s}", id, amount);
+            kafkaSender.sendAccountEvent(id, json);
         }
     }
     /**
@@ -76,6 +82,8 @@ public class AccountService {
         Operation operation = new Operation(id, operationType, amount);
         operationRepository.save(operation);
         accountRepository.save(account);
+        String json = String.format("{\"event\":\"Deposit\", \"accountId\":\"%s\", \"amount\":%s}", id, amount);
+        kafkaSender.sendAccountEvent(id, json);
     }
     /**
      * Метод для вывода баланса
@@ -92,5 +100,7 @@ public class AccountService {
     public void deleteAccountById(String id) {
         operationRepository.deleteAllByAccountId(id);
         accountRepository.deleteAccountById(id);
+        String json = String.format("{\"event\":\"AccountDeleted\", \"accountId\":\"%s\"}", id);
+        kafkaSender.sendAccountEvent(id, json);
     }
 }

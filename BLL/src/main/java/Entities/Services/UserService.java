@@ -1,6 +1,7 @@
 package Entities.Services;
 
 import Enums.HairColor;
+import Kafka.KafkaSender;
 import Models.User;
 import Repositories.UserRepository;
 import jakarta.transaction.Transactional;
@@ -17,10 +18,12 @@ import java.util.NoSuchElementException;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final KafkaSender kafkaSender;
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, KafkaSender kafkaSender) {
         this.userRepository = userRepository;
+        this.kafkaSender = kafkaSender;
     }
 
     public List<User> getUsers() {
@@ -34,6 +37,10 @@ public class UserService {
         user.setAge(age);
         user.setHairColor(hairColor);
         userRepository.save(user);
+        String json = String.format(
+                "{\"event\":\"UserCreated\", \"login\":\"%s\", \"name\":\"%s\", \"age\":%d, \"sex\":%s, \"hairColor\":\"%s\"}",
+                login, name, age, sex, hairColor);
+        kafkaSender.sendClientEvent(login, json);
     }
 
     public User getUserByLogin(String login) {
@@ -65,10 +72,16 @@ public class UserService {
         }
         userRepository.save(user);
         userRepository.save(friend);
+        String json = String.format(
+                "{\"event\":\"FriendshipCreated\", \"user\":\"%s\", \"friend\":\"%s\"}",
+                user_login, friend_login);
+        kafkaSender.sendClientEvent(user_login, json);
     }
     @Transactional
     public void deleteUsersByLogin(String login) {
         userRepository.deleteUsersByLogin(login);
+        String json = String.format("{\"event\":\"UserDeleted\", \"login\":\"%s\"}", login);
+        kafkaSender.sendClientEvent(login, json);
     }
     @Transactional
     public void deleteFriendship(String user_login, String friend_login) {
@@ -81,6 +94,10 @@ public class UserService {
         friend.friends.remove(user);
         userRepository.save(user);
         userRepository.save(friend);
+        String json = String.format(
+                "{\"event\":\"FriendshipDeleted\", \"user\":\"%s\", \"friend\":\"%s\"}",
+                user_login, friend_login);
+        kafkaSender.sendClientEvent(user_login, json);
     }
 
     public List<User> getFriends(String login) {
