@@ -1,40 +1,17 @@
 package Repositories;
 
-import Abstractions.IAccountRepository;
-import Entities.Models.Account;
+import Models.Account;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
-/**
- * Класс, представляющий репозиторий пользователей.
- */
-public class AccountRepository implements IAccountRepository {
-    private List<Account> Accounts = new ArrayList<>();
 
-    public AccountRepository() {
-        Accounts = new ArrayList<>();
-    }
-    /**
-     * Метод для получения информации аккаунта
-     */
-    public Account GetAccount(int id) {
-        for (Account account : Accounts) {
-            if (account.Id.equals(id)) {
-                return account;
-            }
-        }
-        return null;
-    }
-    /**
-     * Метод для добавления аккаунта в репозиторий аккаунтов
-     */
-    public void AddAccount(Account account) {
-        Accounts.add(account);
-    }
-    /**
-     * Метод для удаления аккаунта
-     */
-    public void DeleteAccount(int id) {
-        Accounts.removeIf(account -> account.Id.equals(id));
-    }
+@Repository
+public interface AccountRepository extends JpaRepository<Account, String> {
+
+    Account findAccountById(String id);
+
+    void deleteAccountById(String id);
+
+    List<Account> findAccountByOwnerLogin(String ownerLogin);
 }

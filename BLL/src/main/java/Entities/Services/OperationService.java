@@ -1,40 +1,29 @@
 package Entities.Services;
 
-import Abstractions.IOperationRepository;
-import Entities.Models.Operation;
 import Enums.OperationType;
+import Models.Operation;
+import Repositories.OperationRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Класс сервиса операций
  */
-
+@Service
 public class OperationService {
-    private final IOperationRepository operationRepository;
+    private final OperationRepository operationRepository;
 
-    public OperationService(IOperationRepository operationRepository) {
+    @Autowired
+    public OperationService(OperationRepository operationRepository) {
         this.operationRepository = operationRepository;
     }
 
     /**
      * Метод для получения истории операций конкретного пользователя
      */
-    public List<Operation> GetOperations(Integer id) {
-        List<Operation> operations = operationRepository.GetOperations();
-        List<Operation> filteredOperations = new ArrayList<>();
-        for (Operation operation : operations) {
-            if (operation.AccountId == id) {
-                filteredOperations.add(operation);
-            }
-        }
-        return filteredOperations;
-    }
-    /**
-     * Метод для добавления операции в историю
-     */
-    public void AddOperation(Integer accountId, OperationType operationType, Double amount) {
-        operationRepository.AddOperation(accountId, operationType, amount);
+    public List<Operation> getOperations(String id) {
+        return operationRepository.findOperationsByAccountId(id);
     }
 }
